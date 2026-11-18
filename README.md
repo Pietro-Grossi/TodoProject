@@ -1,4 +1,3 @@
-
 # TodoProject
 
 ## Obiettivo del progetto
@@ -14,10 +13,18 @@ API REST in C# e ASP.NET Core per gestire una lista di attività.
 
 I dati sono conservati in memoria. Le modifiche si perdono al riavvio dell’applicazione.
 
-## Avvio locale
+## Esecuzione del progetto
 
-Installa .NET 10 SDK ed esegui questo comando dalla cartella del progetto.
+Installa .NET 10 SDK ed esegui i comandi dalla radice del repository.
 
-```bash
-dotnet run
+### Avvio locale
+
+```powershell
+dotnet run --project src/TodoProject/TodoProject.csproj
+```
+
+### Test
+
+```powershell
+dotnet test tests/TodoProject.Tests/TodoProject.Tests.csproj
 ```
