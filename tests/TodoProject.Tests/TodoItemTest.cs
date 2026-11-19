@@ -1,4 +1,6 @@
-﻿namespace TodoProject.Tests;
+﻿using TodoProject.Models;
+
+namespace TodoProject.Tests;
 
 public class TodoItemTest
 {

@@ -1,4 +1,4 @@
-namespace TodoProject;
+namespace TodoProject.Models;
 
 public class TodoItem(int id, string title)
 {
