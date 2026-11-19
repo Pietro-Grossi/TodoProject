@@ -77,18 +77,49 @@ public class TodoManager
         }
     }
 
-    public IReadOnlyList<TodoItemResponse> GetTodoItems()
+    public IReadOnlyList<TodoItemResponse> GetTodoItems(bool? isCompleted = null,string? search = null)
+    {
+        lock (_syncRoot)
+        {
+            IEnumerable<TodoItem> tasks = _todos;
+
+            if (isCompleted.HasValue)
+            {
+                tasks = tasks.Where(task => task.IsCompleted == isCompleted.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string searchText = search.Trim();
+
+                tasks = tasks.Where(task =>
+                    task.Title.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            }
+
+            return tasks
+                .Select(task => new TodoItemResponse(
+                    task.Id,
+                    task.Title,
+                    task.IsCompleted))
+                .ToList()
+                .AsReadOnly();
+        }
+    }
+
+    public bool SetTodoCompletion(int id, bool isCompleted)
     {
         lock(_syncRoot)
         {
-            return _todos
-                    .Select(task => new TodoItemResponse(
-                        task.Id,
-                        task.Title,
-                        task.IsCompleted
-                    ))
-                    .ToList()
-                    .AsReadOnly();
+            TodoItem? item = _todos.FirstOrDefault( task => task.Id == id);
+            if(item is not null)
+            {
+                item.SetCompletion(isCompleted);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 

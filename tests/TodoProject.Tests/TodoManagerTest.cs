@@ -219,6 +219,107 @@ public class TodoManagerTest
         Assert.DoesNotContain(manager.GetTodoItems(), task => task.Id == completedTask.Id);
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("  \t  ")]
+    public void GetTodoItems_ConRicercaVuota_RestituisceTuttiITask(string? search)
+    {
+        var manager = new TodoManager();
+        manager.AddTodoItem("Preparare il colloquio");
+        var allTasks = manager.GetTodoItems();
+
+        var result = manager.GetTodoItems(search: search);
+
+        Assert.Equal(
+            allTasks.Select(task => task.Id),
+            result.Select(task => task.Id));
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void GetTodoItems_ConFiltroStato_RestituisceSoloITaskNelloStatoRichiesto(bool isCompleted)
+    {
+        var manager = new TodoManager();
+        var createdTask = manager.AddTodoItem("Preparare il colloquio");
+        manager.SetTodoCompletion(createdTask.Id, isCompleted);
+        int expectedCount = manager.GetTodoItems().Count(task => task.IsCompleted == isCompleted);
+
+        var result = manager.GetTodoItems(isCompleted: isCompleted);
+
+        Assert.Equal(expectedCount, result.Count);
+        Assert.All(result, task => Assert.Equal(isCompleted, task.IsCompleted));
+        Assert.Contains(result, task => task.Id == createdTask.Id);
+    }
+
+    [Theory]
+    [InlineData(null, "  RIPASSARE  ", new[] { "Ripassare C#", "Ripassare SQL" })]
+    [InlineData(true, "  RIPASSARE  ", new[] { "Ripassare C#" })]
+    [InlineData(false, "  RIPASSARE  ", new[] { "Ripassare SQL" })]
+    [InlineData(true, "ripassare sql", new string[] { })]
+    public void GetTodoItems_ConRicercaEStato_ApplicaEntrambiIFiltri(
+        bool? isCompleted, string search, string[] expectedTitles)
+    {
+        var manager = new TodoManager();
+        var completedTask = manager.AddTodoItem("Ripassare C#");
+        manager.SetTodoCompletion(completedTask.Id, true);
+        manager.AddTodoItem("Ripassare SQL");
+        manager.AddTodoItem("Preparare il colloquio");
+
+        var result = manager.GetTodoItems(isCompleted, search);
+
+        Assert.Equal(expectedTitles, result.Select(task => task.Title));
+    }
+
+    [Theory]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    [InlineData(false, false)]
+    public void SetTodoCompletion_ConTaskEsistente_ImpostaLoStatoRichiesto(
+        bool initialState, bool requestedState)
+    {
+        var manager = new TodoManager();
+        var createdTask = manager.AddTodoItem("Preparare il colloquio");
+        manager.SetTodoCompletion(createdTask.Id, initialState);
+
+        bool result = manager.SetTodoCompletion(createdTask.Id, requestedState);
+
+        Assert.True(result);
+        var savedTask = Assert.Single(manager.GetTodoItems(), task => task.Id == createdTask.Id);
+        Assert.Equal(requestedState, savedTask.IsCompleted);
+        Assert.Equal(createdTask.Title, savedTask.Title);
+    }
+
+    [Fact]
+    public void SetTodoCompletion_ConIdInesistente_RestituisceFalseELasciaITaskInvariati()
+    {
+        var manager = new TodoManager();
+        var initialTasks = manager.GetTodoItems();
+        int missingId = initialTasks.Max(task => task.Id) + 1;
+
+        bool result = manager.SetTodoCompletion(missingId, true);
+
+        Assert.False(result);
+        Assert.Equal(
+            initialTasks.Select(task => (task.Id, task.Title, task.IsCompleted)),
+            manager.GetTodoItems().Select(task => (task.Id, task.Title, task.IsCompleted)));
+    }
+
+    [Fact]
+    public void SetTodoCompletion_CompletandoUnTask_NeConsenteLaRimozione()
+    {
+        var manager = new TodoManager();
+        var createdTask = manager.AddTodoItem("Preparare il colloquio");
+
+        manager.SetTodoCompletion(createdTask.Id, true);
+        var result = manager.RemoveTodoItem(createdTask.Id);
+
+        Assert.Equal(RemoveTodoResult.Removed, result);
+        Assert.DoesNotContain(manager.GetTodoItems(), task => task.Id == createdTask.Id);
+    }
+
     [Fact]
     public void ManagerDistinti_ConUnAggiunta_MantengonoListeIndipendenti()
     {
