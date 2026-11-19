@@ -123,4 +123,13 @@ public class TodoManager
         }
     }
 
+
+    public int RemoveCompletedTodoItems()
+    {
+        lock (_syncRoot)
+        {
+            return _todos.RemoveAll(task => task.IsCompleted);
+        }
+    }
+
 }

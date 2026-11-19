@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 // registrazione del Singleton
 builder.Services.AddSingleton<TodoManager>();
 builder.Services.AddControllers();
+builder.Services.AddHostedService<TodoCleanupService>();
 
 // per l'aggiunta di swagger
 builder.Services.AddSwaggerGen(options =>
@@ -25,8 +26,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapControllers();
-app.MapGet("/", () => "Hello World!");
-
 app.Run();
 
 // Rende il punto di ingresso accessibile ai test di integrazione.
