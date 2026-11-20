@@ -35,9 +35,9 @@ namespace TodoProject.Controllers
                 TodoItemResponse response = manager.AddTodoItem(request.Title);
                 return StatusCode(StatusCodes.Status201Created, response);    
             }
-            catch(ArgumentException exception)
+            catch(ArgumentException)
             {
-                return BadRequest(new{ error = exception.Message});
+                return BadRequest();
             }    
         }
 
@@ -62,9 +62,9 @@ namespace TodoProject.Controllers
 
                 return NoContent();
             }
-            catch(ArgumentException exception)
+            catch(ArgumentException)
             {
-                return BadRequest(new{error = exception.Message});
+                return BadRequest();
             }
         }
 
@@ -77,7 +77,7 @@ namespace TodoProject.Controllers
             [FromRoute] int id,
             [FromBody] TodoStatusRequest status
         ){
-            bool updated = manager.SetTodoCompletion(id, status.Status.Value);
+            bool updated = manager.SetTodoCompletion(id, status.Status!.Value);
 
             if (!updated)
             {
@@ -99,10 +99,7 @@ namespace TodoProject.Controllers
             {
                 case RemoveTodoResult.NotCompleted:
                     // conflict ritorna error 409: conflitto con lo stato del task che impedisce l'eliminazione
-                    return Conflict(new
-                    {
-                        error = "È possibile eliminare solo i task completati."
-                    });
+                    return Conflict();
 
                 case RemoveTodoResult.NotFound:
                     // 404 dato che non si trova l'id
