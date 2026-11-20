@@ -28,6 +28,29 @@ public class TodoApiTests : IDisposable
     }
 
     [Fact]
+    public async Task GetSingolo_ConIdEsistente_RestituisceIlTaskRichiesto()
+    {
+        var createdTask = await CreateTodoAsync("Preparare il colloquio");
+
+        using var response = await _client.GetAsync($"/api/tasks/{createdTask.Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var task = Assert.IsType<TodoItemResponse>(
+            await response.Content.ReadFromJsonAsync<TodoItemResponse>());
+        Assert.Equal(createdTask.Id, task.Id);
+        Assert.Equal(createdTask.Title, task.Title);
+        Assert.Equal(createdTask.IsCompleted, task.IsCompleted);
+    }
+
+    [Fact]
+    public async Task GetSingolo_ConIdInesistente_RestituisceNotFound()
+    {
+        using var response = await _client.GetAsync($"/api/tasks/{int.MaxValue}");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
     public async Task Post_ConTitoloValido_CreaUnTaskVisibileNelGetSuccessivo()
     {
         var createdTask = await CreateTodoAsync("\t Preparare il colloquio \r\n");

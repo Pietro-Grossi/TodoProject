@@ -77,6 +77,21 @@ public class TodoManager
         }
     }
 
+    public TodoItemResponse? GetTodoItem(int id)
+    {
+        lock (_syncRoot)
+        {
+            var item = _todos.Find( task => task.Id == id);
+
+            if(item is null)
+            {
+                return null;
+            }
+
+            return new TodoItemResponse(item.Id, item.Title, item.IsCompleted);
+        }
+    }
+
     public IReadOnlyList<TodoItemResponse> GetTodoItems(bool? isCompleted = null,string? search = null)
     {
         lock (_syncRoot)

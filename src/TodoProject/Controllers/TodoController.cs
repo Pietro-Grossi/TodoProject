@@ -9,6 +9,24 @@ namespace TodoProject.Controllers
     [ApiController]
     public class TodoController(TodoManager manager) : ControllerBase
     {
+        [HttpGet("{id:int}")]
+        [ProducesResponseType(typeof(TodoItemResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public ActionResult<TodoItemResponse> GetTodoItem(
+            [FromRoute] int id
+        ) 
+        {
+            var task = manager.GetTodoItem(id);
+
+            if(task is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(task);
+        }
+
+
         [HttpGet]
         [ProducesResponseType(typeof(IReadOnlyList<TodoItemResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
