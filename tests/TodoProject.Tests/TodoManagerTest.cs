@@ -321,6 +321,41 @@ public class TodoManagerTest
     }
 
     [Fact]
+    public void RemoveCompletedTodoItems_RimuoveSoloICompletatiERestituisceIlConteggio()
+    {
+        var manager = new TodoManager();
+        var completedTask = manager.AddTodoItem("Preparare il colloquio");
+        manager.SetTodoCompletion(completedTask.Id, true);
+        manager.AddTodoItem("Ripassare C#");
+        var initialTasks = manager.GetTodoItems();
+        int expectedCount = initialTasks.Count(task => task.IsCompleted);
+        var expectedRemainingIds = initialTasks
+            .Where(task => !task.IsCompleted)
+            .Select(task => task.Id)
+            .ToArray();
+
+        int removedCount = manager.RemoveCompletedTodoItems();
+
+        Assert.Equal(expectedCount, removedCount);
+        Assert.Equal(expectedRemainingIds, manager.GetTodoItems().Select(task => task.Id));
+    }
+
+    [Fact]
+    public void RemoveCompletedTodoItems_SenzaTaskCompletati_NonRimuoveElementi()
+    {
+        var manager = new TodoManager();
+        manager.RemoveCompletedTodoItems();
+        var remainingTasks = manager.GetTodoItems();
+
+        int removedCount = manager.RemoveCompletedTodoItems();
+
+        Assert.Equal(0, removedCount);
+        Assert.Equal(
+            remainingTasks.Select(task => task.Id),
+            manager.GetTodoItems().Select(task => task.Id));
+    }
+
+    [Fact]
     public void ManagerDistinti_ConUnAggiunta_MantengonoListeIndipendenti()
     {
         var firstManager = new TodoManager();
