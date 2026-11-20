@@ -11,6 +11,8 @@ namespace TodoProject.Controllers
     {
 
         [HttpGet]
+        [ProducesResponseType(typeof(IReadOnlyList<TodoItemResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<IReadOnlyList<TodoItemResponse>> GetTodoItems(
             [FromQuery] bool? isCompleted = null,
             [FromQuery] string? search = null)
@@ -22,6 +24,8 @@ namespace TodoProject.Controllers
 
 
         [HttpPost]
+        [ProducesResponseType(typeof(TodoItemResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<TodoItemResponse> CreateTodoItem(
             [FromBody] TodoTitleRequest request
         )
@@ -39,6 +43,9 @@ namespace TodoProject.Controllers
 
 
         [HttpPatch("{id:int}/title")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult RenameTodoItem(
             [FromRoute] int id,
             [FromBody] TodoTitleRequest title
@@ -63,6 +70,9 @@ namespace TodoProject.Controllers
 
 
         [HttpPatch("{id:int}/status")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult SetStatusTodoItem(
             [FromRoute] int id,
             [FromBody] TodoStatusRequest status
@@ -78,6 +88,9 @@ namespace TodoProject.Controllers
 
 
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
         public IActionResult DeleteTodoItem([FromRoute] int id)
         {
             RemoveTodoResult result = manager.RemoveTodoItem(id);
@@ -103,10 +116,5 @@ namespace TodoProject.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
-
-
-
-
-
     }
 }
