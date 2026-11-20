@@ -13,6 +13,9 @@ API REST in C# e ASP.NET Core per gestire una lista di attività.
 
 I dati sono conservati in memoria. Le modifiche si perdono al riavvio dell’applicazione.
 
+Il titolo è obbligatorio e può contenere al massimo 200 caratteri dopo la rimozione della spaziatura ai bordi.
+Deve contenere almeno una lettera o una cifra. Sono vietati caratteri di controllo e separatori di riga o paragrafo interni.
+
 ### Funzionalità aggiuntive
 
 - Pulizia automatica dei task completati ogni 15 minuti, con prima esecuzione dopo 15 minuti dall’avvio dell’applicazione.

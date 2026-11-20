@@ -9,7 +9,6 @@ namespace TodoProject.Controllers
     [ApiController]
     public class TodoController(TodoManager manager) : ControllerBase
     {
-
         [HttpGet]
         [ProducesResponseType(typeof(IReadOnlyList<TodoItemResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -4,10 +4,12 @@ namespace TodoProject.Tests;
 
 public class TodoItemTest
 {
-    [Fact]
-    public void Costruttore_ConTitoloValido_CreaUnTaskAperto()
+    [Theory]
+    [InlineData("  Comprare il pane  ")]
+    [InlineData("\t Comprare il pane \r\n")]
+    public void Costruttore_ConTitoloValido_CreaUnTaskAperto(string title)
     {
-        var task = new TodoItem(42, "  Comprare il pane  ");
+        var task = new TodoItem(42, title);
 
         Assert.Equal(42, task.Id);
         Assert.Equal("Comprare il pane", task.Title);
@@ -27,6 +29,10 @@ public class TodoItemTest
     [InlineData("!!!")]
     [InlineData("Prima\nSeconda")]
     [InlineData("Prima\rSeconda")]
+    [InlineData("Prima\tSeconda")]
+    [InlineData("Prima\0Seconda")]
+    [InlineData("Prima\u2028Seconda")]
+    [InlineData("Prima\u2029Seconda")]
     public void Costruttore_ConTitoloInvalido_RifiutaLaCreazione(string title)
     {
         Assert.Throws<ArgumentException>(() => new TodoItem(1, title));
@@ -50,6 +56,20 @@ public class TodoItemTest
         Assert.Throws<ArgumentException>(() => task.Rename("!!!"));
 
         Assert.Equal("Comprare il pane", task.Title);
+    }
+
+    [Fact]
+    public void Titolo_AlLimiteVieneAccettato_OltreIlLimiteVieneRifiutato()
+    {
+        string validTitle = new('a', 200);
+        string tooLongTitle = new('a', 201);
+
+        var task = new TodoItem(1, $"  {validTitle}  ");
+
+        Assert.Equal(validTitle, task.Title);
+        Assert.Throws<ArgumentException>(() => new TodoItem(2, tooLongTitle));
+        Assert.Throws<ArgumentException>(() => task.Rename(tooLongTitle));
+        Assert.Equal(validTitle, task.Title);
     }
 
     [Fact]

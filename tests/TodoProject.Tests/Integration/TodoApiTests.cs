@@ -30,7 +30,7 @@ public class TodoApiTests : IDisposable
     [Fact]
     public async Task Post_ConTitoloValido_CreaUnTaskVisibileNelGetSuccessivo()
     {
-        var createdTask = await CreateTodoAsync("  Preparare il colloquio  ");
+        var createdTask = await CreateTodoAsync("\t Preparare il colloquio \r\n");
 
         Assert.True(createdTask.Id > 0);
         Assert.Equal("Preparare il colloquio", createdTask.Title);
@@ -40,6 +40,15 @@ public class TodoApiTests : IDisposable
         var savedTask = Assert.Single(tasks, task => task.Id == createdTask.Id);
         Assert.Equal(createdTask.Title, savedTask.Title);
         Assert.Equal(createdTask.IsCompleted, savedTask.IsCompleted);
+    }
+
+    [Fact]
+    public async Task Post_ConTitoloTroppoLungo_RestituisceBadRequest()
+    {
+        using var response = await _client.PostAsJsonAsync(
+            "/api/tasks", new { title = new string('a', 201) });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Theory]
