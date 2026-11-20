@@ -94,7 +94,7 @@ namespace TodoProject.Controllers
             [FromRoute] int id,
             [FromBody] TodoStatusRequest status
         ){
-            bool updated = manager.SetTodoCompletion(id, status.Status!.Value);
+            bool updated = manager.SetTodoCompletion(id, status.IsCompleted!.Value);
 
             if (!updated)
             {

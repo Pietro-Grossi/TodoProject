@@ -5,5 +5,5 @@ namespace TodoProject.Dtos;
 public class TodoStatusRequest()
 {
     [Required]
-    public bool? Status{get; init;} 
+    public bool? IsCompleted { get; init; }
 }

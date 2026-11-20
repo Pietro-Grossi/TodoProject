@@ -105,7 +105,7 @@ public class TodoApiTests : IDisposable
         var completedTask = await CreateTodoAsync("Ripassare C#");
         await CreateTodoAsync("Ripassare SQL");
         using var completionResponse = await _client.PatchAsJsonAsync(
-            $"/api/tasks/{completedTask.Id}/status", new { status = true });
+            $"/api/tasks/{completedTask.Id}/status", new { isCompleted = true });
         Assert.Equal(HttpStatusCode.NoContent, completionResponse.StatusCode);
 
         var tasks = await GetTodosAsync($"/api/tasks?{query}");
@@ -163,10 +163,10 @@ public class TodoApiTests : IDisposable
     {
         var createdTask = await CreateTodoAsync("Preparare il colloquio");
         string path = $"/api/tasks/{createdTask.Id}/status";
-        using var initialResponse = await _client.PatchAsJsonAsync(path, new { status = true });
+        using var initialResponse = await _client.PatchAsJsonAsync(path, new { isCompleted = true });
         Assert.Equal(HttpStatusCode.NoContent, initialResponse.StatusCode);
 
-        using var response = await _client.PatchAsJsonAsync(path, new { status = requestedState });
+        using var response = await _client.PatchAsJsonAsync(path, new { isCompleted = requestedState });
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(string.Empty, await response.Content.ReadAsStringAsync());
@@ -178,14 +178,14 @@ public class TodoApiTests : IDisposable
 
     [Theory]
     [InlineData("{}")]
-    [InlineData("{\"status\":null}")]
-    [InlineData("{\"status\":\"true\"}")]
+    [InlineData("{\"isCompleted\":null}")]
+    [InlineData("{\"isCompleted\":\"true\"}")]
     public async Task PatchStatus_ConStatoMancanteOInvalido_RestituisceBadRequestSenzaModificareIlTask(
         string json)
     {
         var createdTask = await CreateTodoAsync("Preparare il colloquio");
         string path = $"/api/tasks/{createdTask.Id}/status";
-        using var completionResponse = await _client.PatchAsJsonAsync(path, new { status = true });
+        using var completionResponse = await _client.PatchAsJsonAsync(path, new { isCompleted = true });
         Assert.Equal(HttpStatusCode.NoContent, completionResponse.StatusCode);
         using var body = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -199,7 +199,7 @@ public class TodoApiTests : IDisposable
 
     [Theory]
     [InlineData("title", "{\"title\":\"Ripassare C#\"}")]
-    [InlineData("status", "{\"status\":true}")]
+    [InlineData("status", "{\"isCompleted\":true}")]
     public async Task Patch_ConIdInesistente_RestituisceNotFound(string field, string json)
     {
         using var body = new StringContent(json, Encoding.UTF8, "application/json");
@@ -221,7 +221,7 @@ public class TodoApiTests : IDisposable
         Assert.Contains(tasksBeforeCompletion, task => task.Id == createdTask.Id);
 
         using var completionResponse = await _client.PatchAsJsonAsync(
-            $"{path}/status", new { status = true });
+            $"{path}/status", new { isCompleted = true });
         Assert.Equal(HttpStatusCode.NoContent, completionResponse.StatusCode);
 
         using var deletedResponse = await _client.DeleteAsync(path);
