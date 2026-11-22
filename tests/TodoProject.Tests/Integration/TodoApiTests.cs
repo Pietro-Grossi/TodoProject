@@ -22,7 +22,7 @@ public class TodoApiTests : IDisposable
     {
         var tasks = await GetTodosAsync();
 
-        Assert.Equal(3, tasks.Length);
+        Assert.Equal(4, tasks.Length);
         Assert.Contains(tasks, task => task.IsCompleted);
         Assert.Contains(tasks, task => !task.IsCompleted);
     }

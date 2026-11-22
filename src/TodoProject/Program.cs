@@ -2,12 +2,10 @@ using TodoProject.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// registrazione del Singleton
 builder.Services.AddSingleton<TodoManager>();
 builder.Services.AddControllers();
 builder.Services.AddHostedService<TodoCleanupService>();
 
-// per l'aggiunta di swagger
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new()

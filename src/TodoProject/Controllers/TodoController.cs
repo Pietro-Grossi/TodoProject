@@ -14,18 +14,17 @@ namespace TodoProject.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public ActionResult<TodoItemResponse> GetTodoItem(
             [FromRoute] int id
-        ) 
+        )
         {
             var task = manager.GetTodoItem(id);
 
-            if(task is null)
+            if (task is null)
             {
                 return NotFound();
             }
 
             return Ok(task);
         }
-
 
         [HttpGet]
         [ProducesResponseType(typeof(IReadOnlyList<TodoItemResponse>), StatusCodes.Status200OK)]
@@ -39,7 +38,6 @@ namespace TodoProject.Controllers
             return Ok(tasks);
         }
 
-
         [HttpPost]
         [ProducesResponseType(typeof(TodoItemResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -50,12 +48,13 @@ namespace TodoProject.Controllers
             try
             {
                 TodoItemResponse response = manager.AddTodoItem(request.Title);
-                return StatusCode(StatusCodes.Status201Created, response);    
+                return StatusCode(StatusCodes.Status201Created, response);
             }
-            catch(ArgumentException)
+            catch (ArgumentException ex) when (ex.ParamName == "title")
             {
-                return BadRequest();
-            }    
+                ModelState.AddModelError(nameof(TodoTitleRequest.Title), ex.Message);
+                return ValidationProblem(ModelState);
+            }
         }
 
 
@@ -70,7 +69,7 @@ namespace TodoProject.Controllers
         {
             try
             {
-                bool updated = manager.RenameTodoItem(id, title.Title);  
+                bool updated = manager.RenameTodoItem(id, title.Title);
 
                 if (!updated)
                 {
@@ -79,12 +78,12 @@ namespace TodoProject.Controllers
 
                 return NoContent();
             }
-            catch(ArgumentException)
+            catch (ArgumentException ex) when (ex.ParamName == "title")
             {
-                return BadRequest();
+                ModelState.AddModelError(nameof(TodoTitleRequest.Title), ex.Message);
+                return ValidationProblem(ModelState);
             }
         }
-
 
         [HttpPatch("{id:int}/status")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -93,13 +92,15 @@ namespace TodoProject.Controllers
         public IActionResult SetStatusTodoItem(
             [FromRoute] int id,
             [FromBody] TodoStatusRequest status
-        ){
+        )
+        {
             bool updated = manager.SetTodoCompletion(id, status.IsCompleted!.Value);
 
             if (!updated)
             {
                 return NotFound();
             }
+
             return NoContent();
         }
 
@@ -119,11 +120,9 @@ namespace TodoProject.Controllers
                     return Conflict();
 
                 case RemoveTodoResult.NotFound:
-                    // 404 dato che non si trova l'id
                     return NotFound();
 
                 case RemoveTodoResult.Removed:
-                    // 204 indica che la rimozione è avvenuta e non c'è nessun oggetto ritornato
                     return NoContent();
 
                 default:

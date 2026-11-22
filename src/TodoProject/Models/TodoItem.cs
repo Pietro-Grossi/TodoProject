@@ -8,7 +8,6 @@ public class TodoItem(int id, string title)
     public string Title { get; private set; } = ValidateTitle(title);
     public bool IsCompleted { get; private set; }
 
-
     private static string ValidateTitle(string title)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
